@@ -9,6 +9,7 @@ def is_prime(number):
     for i in range(2, int(number**0.5) + 1):
         if number % i == 0:
             return False
+            
     return True
 
 def gcd(a, b):
@@ -79,6 +80,10 @@ def dekripsi():
 def calculate():
     p = int(request.form.get('p'))
     q = int(request.form.get('q'))
+
+    # Check if p and q are at least 11
+    if p < 11 or q < 11:
+        return jsonify({"error": "p dan q harus lebih besar atau sama dengan 11."}), 400
 
     if not (is_prime(p) and is_prime(q)):
         return jsonify({"error": "p dan q harus bilangan prima."}), 400
