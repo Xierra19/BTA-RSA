@@ -1,15 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "BTA-RSA/api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "BTA-RSA/api/index.py"
-    }
-  ]
+    
+        "builds": [{"src": "main.py", "use":"@vercel/pyhton"}],
+        "routes": [{"src": "/(.*)", "dest": "main.py"}]
+    
 }
