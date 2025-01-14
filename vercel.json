@@ -9,7 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "web RSA/api/index.py"
+      "dest": "BTA-RSA/api/index.py"
     }
   ]
 }
