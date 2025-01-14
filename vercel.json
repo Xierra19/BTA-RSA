@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "web RSA/api/index.py",
+      "src": "BTA-RSA/api/index.py",
       "use": "@vercel/python"
     }
   ],
