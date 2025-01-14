@@ -1,6 +1,6 @@
 {
     
-        "builds": [{"src": "main.py", "use":"@vercel/pyhton"}],
-        "routes": [{"src": "/(.*)", "dest": "main.py"}]
+        "builds": [{"src": "rsa.py", "use":"@vercel/pyhton"}],
+        "routes": [{"src": "/(.*)", "dest": "rsa.py"}]
     
 }
