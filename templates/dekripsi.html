@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dekripsi RSA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 0 20px; /* Tambahkan padding kiri dan kanan */
+        }
+
+        input, select, button {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box; /* Memastikan padding tidak menambah ukuran elemen */
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer; 
+        }
+        button:hover 
+        { background-color: #0056b3;}
+        
+        .result {
+            margin: 20px; /* Jarak yang seragam dari semua sisi */
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .disabled-input {
+            cursor: not-allowed;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: calc(100% - 40px); /* Sesuaikan dengan margin */
+            margin: 0 auto;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 20px; /* Jarak kiri dan kanan */
+        }
+
+        .small-button {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+
+        .reset-button {
+            background-color: #ff4d4d;
+            color: #fff;
+        }
+
+        .reset-button:hover {
+            background-color: #cc0000;
+        }
+
+        .home-button {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .home-button:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dekripsi RSA</h1>
+        <form id="decryptionForm">
+            <label for="encryptedMessage">Pesan Terenkripsi:</label>
+            <input type="text" id="encryptedMessage" name="encryptedMessage" required>
+
+            <label for="d">Nilai d (Private Key):</label>
+            <input type="number" id="d" name="d" required>
+
+            <label for="n">Nilai n:</label>
+            <input type="number" id="n" name="n" required>
+
+            <button type="submit">Dekripsi</button>
+        </form>
+
+        <div id="decryptionResult" class="result" style="display: none;"></div>
+
+        <div class="button-container">
+            <button id="resetButton" class="small-button reset-button">Reset</button>
+            <button id="homeButton" class="small-button home-button">Kembali ke Beranda</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('decryptionForm');
+        const decryptionResult = document.getElementById('decryptionResult');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/decrypt_msg', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.error) {
+                decryptionResult.style.display = 'block';
+                decryptionResult.innerHTML = `<div class="error">${result.error}</div>`;
+            } else {
+                decryptionResult.style.display = 'block';
+                decryptionResult.innerHTML = `<strong>Pesan Dekripsi:</strong> ${result.decryptedMessage}`;
+            }
+        });
+
+        const resetButton = document.getElementById('resetButton');
+        const homeButton = document.getElementById('homeButton');
+
+        resetButton.addEventListener('click', () => {
+            form.reset();
+            decryptionResult.style.display = 'none';
+        });
+
+        homeButton.addEventListener('click', () => {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

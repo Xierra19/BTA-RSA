@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkripsi RSA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 0 20px; /* Tambahkan padding kiri dan kanan */
+        }
+
+        input, select, button {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box; /* Memastikan padding tidak menambah ukuran elemen */
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer; 
+        }
+        button:hover 
+        { background-color: #0056b3;}
+        
+        .result {
+            margin: 20px; /* Jarak yang seragam dari semua sisi */
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .disabled-input {
+            cursor: not-allowed;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: calc(100% - 40px); /* Sesuaikan dengan margin */
+            margin: 0 auto;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 20px; /* Jarak kiri dan kanan */
+        }
+
+        .small-button {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+
+        .reset-button {
+            background-color: #ff4d4d;
+            color: #fff;
+        }
+
+        .reset-button:hover {
+            background-color: #cc0000;
+        }
+
+        .home-button {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .home-button:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enkripsi RSA</h1>
+        <form id="calculateForm">
+            <label for="p">Nilai p (Bilangan Prima):</label>
+            <input type="number" id="p" name="p" required>
+
+            <label for="q">Nilai q (Bilangan Prima):</label>
+            <input type="number" id="q" name="q" required>
+
+            <button type="submit">Hitung e</button>
+        </form>
+
+        <div id="calculationResult" class="result" style="display: none;"></div>
+
+        <form id="validateEForm" style="display: none;">
+            <label for="e">Pilih Nilai e (Public Key):</label>
+            <select id="e" name="e" required></select>
+
+            <button type="button" id="validateE">Validasi Nilai e</button>
+
+            <label for="d">Nilai d (Private Key):</label>
+            <input type="text" id="d" name="d" readonly class="disabled-input">
+
+            <input type="hidden" id="hiddenN" name="n">
+        </form>
+
+        <form id="encryptDecryptForm" style="display: none;">
+            <input type="hidden" id="hiddenE" name="e">
+            <input type="hidden" id="hiddenD" name="d">
+            <input type="hidden" id="hiddenN" name="n">
+
+            <label for="message">Pesan (Plain Text):</label>
+            <input type="text" id="message" name="message" required>
+
+            <button type="submit">Enkripsi Pesan</button>
+        </form>
+
+        <div id="encryptDecryptResult" class="result" style="display: none;"></div>
+
+        <div class="button-container">
+            <button id="resetButton" class="small-button reset-button">Reset</button>
+            <button id="homeButton" class="small-button home-button">Kembali ke Beranda</button>
+        </div>
+    </div>
+
+    <script>
+    const calculateForm = document.getElementById('calculateForm');
+    const validateEForm = document.getElementById('validateEForm');
+    const encryptDecryptForm = document.getElementById('encryptDecryptForm');
+    const calculationResult = document.getElementById('calculationResult');
+    const encryptDecryptResult = document.getElementById('encryptDecryptResult');
+    const hiddenNInputs = document.querySelectorAll('input[name="n"]');
+    const resetButton = document.getElementById('resetButton');
+    const homeButton = document.getElementById('homeButton');
+
+    console.log("Script loaded");
+
+    calculateForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log("Calculate form submitted");
+        const formData = new FormData(calculateForm);
+        try {
+            const response = await fetch('/calculate', { method: 'POST', body: formData });
+            const result = await response.json();
+            console.log("Calculation result:", result);
+
+            if (result.error) {
+                calculationResult.style.display = 'block';
+                calculationResult.innerHTML = `<div class="error">${result.error}</div>`;
+                validateEForm.style.display = 'none';
+                encryptDecryptForm.style.display = 'none';
+            } else {
+                calculationResult.style.display = 'block';
+                calculationResult.innerHTML = `Nilai e yang memenuhi syarat: ${result.e.join(', ')}<br>Nilai n: ${result.n}<br> Nilai m : ${result.m} `;
+
+                const eSelect = document.getElementById('e');
+                eSelect.innerHTML = '';
+                result.e.forEach(eValue => {
+                    const option = document.createElement('option');
+                    option.value = eValue;
+                    option.textContent = eValue;
+                    eSelect.appendChild(option);
+                });
+
+                hiddenNInputs.forEach(input => {
+                    input.value = result.n;
+                });
+
+                validateEForm.style.display = 'block';
+                encryptDecryptForm.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error during calculation:', error);
+        }
+    });
+
+    document.getElementById('validateE').addEventListener('click', async () => {
+        const eSelect = document.getElementById('e');
+        const selectedE = parseInt(eSelect.value);
+        const p = document.getElementById('p').value;
+        const q = document.getElementById('q').value;
+
+        if (!selectedE || !p || !q) {
+            alert('Semua input (e, p, q) harus diisi.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/calculate_d', {
+                method: 'POST',
+                body: new URLSearchParams({ e: selectedE, p: p, q: q })
+            });
+
+            const result = await response.json();
+            console.log("Validation result:", result);
+
+            if (result.error) {
+                alert(`Error: ${result.error}`);
+            } else {
+                document.getElementById('d').value = result.d;
+                document.getElementById('hiddenE').value = selectedE;
+                document.getElementById('hiddenD').value = result.d;
+                encryptDecryptForm.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error during validation:', error);
+        }
+    });
+
+    encryptDecryptForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log("Encrypt/Decrypt form submitted");
+        const formData = new FormData(encryptDecryptForm);
+
+        try {
+            const response = await fetch('/encrypt_decrypt', { method: 'POST', body: formData });
+            const result = await response.json();
+            console.log("Encrypt/Decrypt result:", result);
+
+            if (result.error) {
+                encryptDecryptResult.style.display = 'block';
+                encryptDecryptResult.innerHTML = `<div class="error">${result.error}</div>`;
+            } else {
+                encryptDecryptResult.style.display = 'block';
+                encryptDecryptResult.innerHTML = `
+                    <strong>Hasil Enkripsi</strong><br><br>
+                    <strong>Public Key (e,n):</strong><br>${result.e},${result.n}<br><br>
+                    <strong>Private Key (d,n):</strong><br>${result.d},${result.n}<br><br>
+                    <strong>Pesan Terenkripsi:</strong><br>${result.encrypted}<br><br>
+                    <strong>Hasil Dekripsi:</strong><br>${result.decrypted}
+                `;
+            }
+        } catch (error) {
+            console.error('Error during encryption/decryption:', error);
+        }
+    });
+    
+    resetButton.addEventListener('click', () => {
+        calculateForm.reset();
+        validateEForm.style.display = 'none';
+        encryptDecryptForm.style.display = 'none';
+        calculationResult.style.display = 'none';
+        encryptDecryptResult.style.display = 'none';
+    });
+
+    homeButton.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+
+    </script>
+</body>
+</html>
